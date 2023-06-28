@@ -1,8 +1,13 @@
+"""Copyright by CookieDecide, Darkuuu
+Licensed under MIT License
+"""
+
 import discord
 from discord.ext import commands
 from api_key import __api_key__
 import asyncio
 import config
+import apps.fun
 
 intents = discord.Intents.all()
 
@@ -12,13 +17,10 @@ bot = commands.Bot(
     intents=intents,
 )
 
-@bot.command(name="helloworld")
-async def hello_world(ctx):
-    """Send 'Hello World!'"""
-    await ctx.send("Hello World!")  
-
 async def main():
     async with bot:
+        await bot.add_cog(apps.fun.Fun(bot))
+
         await bot.start(__api_key__)
 
 asyncio.run(main())

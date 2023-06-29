@@ -7,7 +7,7 @@ from discord.ext import commands
 import logging
 
 
-class UtilAudioPlayer:
+class UtilAudioPlayer():
     """Collection of all AudioPlayer commands and corresponding utility functions."""
 
     def __init__(self):

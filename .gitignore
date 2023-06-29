@@ -162,3 +162,4 @@ cython_debug/
 
 # Application specific
 src/api_key.py
+logs/

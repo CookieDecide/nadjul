@@ -5,12 +5,14 @@ Licensed under MIT License
 import peewee as pw
 import os
 
+DB_PATH = "../db/template.db"
+
 # check if db folder exists
 if not os.path.exists("../db"):
     os.mkdir("../db")
 
 # link the database file
-TEMPLATE_DB = pw.SqliteDatabase("../db/template.db", check_same_thread=False)
+TEMPLATE_DB = pw.SqliteDatabase(DB_PATH, check_same_thread=False)
 
 
 class TEMPLATE_TABLE(pw.Model):

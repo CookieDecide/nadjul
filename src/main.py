@@ -27,7 +27,7 @@ def init_log():
     level = logging.INFO
     filename = (
         config.log_path
-        + "main_"
+        + "all_"
         + time.strftime("%Y%m%d_%H-%M-%S", time.localtime())
         + ".log"
     )

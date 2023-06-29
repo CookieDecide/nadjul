@@ -16,7 +16,7 @@ AUDIO_DB = pw.SqliteDatabase(DB_PATH, check_same_thread=False)
 
 
 class YOUTUBE_TABLE(pw.Model):
-    """Template for a database table."""
+    """YouTube table schematics."""
 
     url = pw.TextField(primary_key=True, unique=True)
     title = pw.TextField()

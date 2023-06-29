@@ -7,7 +7,7 @@ from discord.ext import commands
 import logging
 
 
-class Fun(commands.Cog):
+class BotFun(commands.Cog):
     """Collection of all Fun commands and corresponding utility functions.
 
     Attributes:

@@ -10,7 +10,7 @@ import config
 import os
 import logging
 import time
-import apps.fun
+from bot.bot_fun import BotFun
 
 intents = discord.Intents.all()
 
@@ -43,7 +43,7 @@ def init_log():
 async def main():
     async with bot:
         logging.info("Adding modules to bot")
-        await bot.add_cog(apps.fun.Fun(bot))
+        await bot.add_cog(BotFun(bot))
         logging.info("Modules added")
 
         logging.info("Starting bot")

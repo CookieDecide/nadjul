@@ -177,3 +177,4 @@ cython_debug/
 src/api_key.py
 logs/
 db/
+YT/

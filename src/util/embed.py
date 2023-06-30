@@ -21,7 +21,7 @@ def create_embed_image(title, description, img_url, url) -> discord.Embed:
     Returns:
         An embed with blue color showing an image.
     """
-    color = 0x14D8FA
+    color = 0x14D8FA  # blue
     embed = discord.Embed(
         title=title,
         description=description,
@@ -42,9 +42,36 @@ def create_embed_error(description) -> discord.Embed:
     Returns:
         An embed with red color including an error message.
     """
-    color = 0xFF0000
+    color = 0xFF0000  # red
     embed = discord.Embed(
         title="Error",
+        description=description,
+        color=color,
+    )
+
+    return embed
+
+
+def create_embed_queue(queue) -> discord.Embed:
+    """Creates an embed indicating and error.
+
+    Args:
+        description: Description/Message of embed.
+
+    Returns:
+        An embed with red color including an error message.
+    """
+    if len(queue) == 0:
+        return create_embed_error("Queue is empty!")
+
+    description = ""
+    i = 0
+    for song in queue:
+        description += str(i) + ". " + song.title + "\n"
+
+    color = 0x14D8FA  # blue
+    embed = discord.Embed(
+        title="Song Queue:",
         description=description,
         color=color,
     )

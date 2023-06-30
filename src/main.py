@@ -11,6 +11,7 @@ import os
 import logging
 import time
 from bot.bot_fun import BotFun
+from bot.bot_music import BotMusic
 
 intents = discord.Intents.all()
 
@@ -44,6 +45,7 @@ async def main():
     async with bot:
         logging.info("Adding modules to bot")
         await bot.add_cog(BotFun(bot))
+        await bot.add_cog(BotMusic(bot))
         logging.info("Modules added")
 
         logging.info("Starting bot")

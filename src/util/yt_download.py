@@ -18,6 +18,9 @@ def __download_single(url):
 
     Args:
         url: Youtube url of the video.
+
+    Returns:
+        The database entry of the video.
     """
     if not os.path.exists(config.youtube_output_path):
         os.mkdir(config.youtube_output_path)
@@ -41,10 +44,12 @@ def __download_single(url):
             thumbnail_url=video.thumbnail_url,
             timestamp=int(time.time()),
             hash_=compute_hash(config.youtube_output_path + filename),
-        )
+        ).execute()
 
         logging.info(f"Finished download for url {url}")
         logging.info(f"Saved file in {config.youtube_output_path + filename}")
+
+    return YOUTUBE_TABLE.get(YOUTUBE_TABLE.url == url)
 
 
 def __download_playlist(url):
@@ -71,11 +76,14 @@ def download(url):
 
     Args:
         url: Youtube url of the video.
+
+    Returns:
+        The database entry of the video.
     """
     if "list" in url:
-        __download_playlist(url)
+        return __download_playlist(url)
     else:
-        __download_single(url)
+        return __download_single(url)
 
 
 def is_url_downloaded_single(url):

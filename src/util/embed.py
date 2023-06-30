@@ -21,7 +21,7 @@ def create_embed_image(title, description, img_url, url) -> discord.Embed:
     Returns:
         An embed with blue color showing an image.
     """
-    color = 0x14D8FA
+    color = 0x14D8FA  # blue
     embed = discord.Embed(
         title=title,
         description=description,
@@ -42,7 +42,7 @@ def create_embed_error(description) -> discord.Embed:
     Returns:
         An embed with red color including an error message.
     """
-    color = 0xFF0000
+    color = 0xFF0000  # red
     embed = discord.Embed(
         title="Error",
         description=description,

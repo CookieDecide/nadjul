@@ -6,6 +6,7 @@ Contains various helper functions and classes to receive content from xkcd.
 import urllib.request
 import json
 import random
+import logging
 
 _url_comic_current = "https://xkcd.com/info.0.json"
 _url_comic_left = "https://xkcd.com/"
@@ -46,7 +47,8 @@ def get_random_xkcd() -> XkcdComic:
             max_number = data["num"]
             rand_number = random.randint(1, max_number)
             return create_xkcdcomic(rand_number)
-    except Exception as err:
+    except urllib.error.HTTPError as err:
+        logging.error(f"Exception occured: {err}")
         return None
 
 
@@ -63,5 +65,6 @@ def create_xkcdcomic(number) -> XkcdComic:
         with urllib.request.urlopen(url_comic) as url:
             data = json.load(url)
             return XkcdComic(data["title"], data["img"], number)
-    except Exception as err:
+    except urllib.error.HTTPError as err:
+        logging.error(f"Exception occured: {err}")
         return None

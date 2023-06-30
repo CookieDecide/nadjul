@@ -4,6 +4,7 @@ Licensed under MIT License
 
 from pytube import YouTube
 from pytube import Playlist
+from pytube.exceptions import AgeRestrictedError
 import logging
 import time
 import hashlib
@@ -29,11 +30,17 @@ def __download_single(url):
         logging.info(f"Url {url} is already downloaded")
     else:
         logging.info(f"Started download for url {url}")
-        video = YouTube(url)
+        video = YouTube(url, use_oauth=True, allow_oauth_cache=True)
         filename = video.video_id + "." + config.youtube_file_extension
-        video.streams.filter(
-            file_extension=config.youtube_file_extension, only_audio=True
-        ).first().download(output_path=config.youtube_output_path, filename=filename)
+        try:
+            video.streams.filter(
+                file_extension=config.youtube_file_extension, only_audio=True
+            ).first().download(
+                output_path=config.youtube_output_path, filename=filename
+            )
+        except AgeRestrictedError as err:
+            logging.error(f"Exception occured: {err}")
+            return
 
         YOUTUBE_TABLE.insert(
             url=url,
@@ -57,18 +64,26 @@ def __download_playlist(url):
 
     Args:
         url: Youtube url of the playlist.
+
+    Returns:
+        A list of the database entrys of the videos.
     """
     logging.info(f"Started download for playlist url {url}")
     playlist = Playlist(url)
     logging.info(f"Number of videos in playlist: {playlist.length}")
 
+    video_list = []
+
     index = 0
     for video_url in playlist.video_urls:
         index += 1
-        __download_single(video_url)
+        video = __download_single(video_url)
+        video_list.append(video)
         logging.info(f"Finished download for video nr. {index}")
 
     logging.info(f"Finished download for playlist url {url}")
+
+    return video_list
 
 
 def download(url):
@@ -83,7 +98,7 @@ def download(url):
     if "list" in url:
         return __download_playlist(url)
     else:
-        return __download_single(url)
+        return [__download_single(url)]
 
 
 def is_url_downloaded_single(url):

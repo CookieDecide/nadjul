@@ -38,6 +38,7 @@ class BotMusic(commands.Cog):
         audio = util.yt_download.download(url)
 
         await util.audio_player.join(ctx)
+
         await util.audio_player.play(ctx, audio)
 
         logging.info(f"Finished play request from user {ctx.author}")
@@ -75,3 +76,12 @@ class BotMusic(commands.Cog):
         """
         queue = util.audio_player.get_queue()
         await ctx.send(embed=util.embed.create_embed_queue(queue))
+
+    @commands.command(name="shuffle", help="Shuffles the song queue.")
+    async def shuffle_queue(self, ctx: commands.Context):
+        """Shuffles the song queue.
+
+        Args:
+            ctx: Context of command invocation.
+        """
+        util.audio_player.shuffle_queue()

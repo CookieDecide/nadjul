@@ -68,6 +68,9 @@ def create_embed_queue(queue) -> discord.Embed:
     i = 0
     for song in queue:
         description += str(i) + ". " + song.title + "\n"
+        if i >= 9:
+            break
+        i += 1
 
     color = 0x14D8FA  # blue
     embed = discord.Embed(

@@ -7,6 +7,7 @@ from discord.ext import commands
 import logging
 import util.embed
 import asyncio
+from random import shuffle
 
 queue = []
 is_playing = False
@@ -53,7 +54,9 @@ async def play(ctx: commands.Context, audio):
         ctx: Context of command invocation.
         audio: The database entry of the video.
     """
-    await queue_append(ctx, audio)
+    for song in audio:
+        if song:
+            await queue_append(ctx, song)
 
     if not is_playing:
         await play_loop(ctx)
@@ -122,3 +125,11 @@ def get_queue() -> list:
         queue: Current song queue.
     """
     return queue
+
+def shuffle_queue():
+    """Shuffles the song queue.
+
+    Args:
+        ctx: Context of command invocation.
+    """
+    shuffle(queue)

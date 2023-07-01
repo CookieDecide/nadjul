@@ -33,20 +33,15 @@ class BotMessage(commands.Cog):
         """
         logging.info(f"Received purge request from user {ctx.author}")
 
-        deleted = 0
-        to_delete = count
-        while to_delete > 100:
-            deleted_loop = await ctx.channel.purge(limit=100)
-            if len(deleted_loop) < 100:
-                deleted = deleted + len(deleted_loop)
-                to_delete = to_delete - len(deleted_loop)
+        total_deleted = 0
+
+        for i in range(0, (count // 100) + 1):
+            deleted = len(await ctx.channel.purge(limit=100))
+            total_deleted += deleted
+            if deleted < 100:
                 break
 
-            deleted = deleted + 100
-            to_delete = to_delete - 100
-        deleted_smaller_100 = await ctx.channel.purge(limit=to_delete)
-        deleted = deleted + len(deleted_smaller_100)
+        await ctx.send(f"Deleted {total_deleted} messages.")
 
-        await ctx.send(f"Deleted {deleted} messages.")
-
+        logging.info(f"Purged {i+1} times.")
         logging.info(f"Finished purge request from user {ctx.author}")

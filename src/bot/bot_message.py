@@ -36,7 +36,12 @@ class BotMessage(commands.Cog):
         deleted = 0
         to_delete = count
         while to_delete > 100:
-            await ctx.channel.purge(limit=100)
+            deleted_loop = await ctx.channel.purge(limit=100)
+            if len(deleted_loop) < 100:
+                deleted = deleted + len(deleted_loop)
+                to_delete = to_delete - len(deleted_loop)
+                break
+
             deleted = deleted + 100
             to_delete = to_delete - 100
         deleted_smaller_100 = await ctx.channel.purge(limit=to_delete)

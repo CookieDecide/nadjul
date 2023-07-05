@@ -42,6 +42,16 @@ def init_log():
     logging.basicConfig(filename=filename, format=format, level=level)
 
 
+@bot.event
+async def on_ready():
+    await bot.change_presence(
+        status=discord.Status.online, activity=discord.Game("Try >help")
+    )
+    logging.info(f"Logged in as {bot.user} ({bot.user.id})")
+    print("Logged in as {0} ({0.id})".format(bot.user))
+    print("------")
+
+
 async def main():
     async with bot:
         logging.info("Adding modules to bot")

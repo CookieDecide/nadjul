@@ -64,5 +64,9 @@ async def main():
         await bot.start(__api_key__)
 
 
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
+
 init_log()
 asyncio.run(main())

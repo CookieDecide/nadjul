@@ -1,6 +1,6 @@
 """Copyright by CookieDecide, Darkuuu
 Licensed under MIT License
-Contains various helper functions and classes to receive content from xkcd.
+Contains helper functions to create bonk images.
 """
 
 import requests

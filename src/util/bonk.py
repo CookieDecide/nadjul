@@ -5,6 +5,7 @@ Contains helper functions to create bonk images.
 
 import requests
 from PIL import Image
+import config
 import logging
 
 
@@ -17,7 +18,7 @@ def create_bonk_img(avatar_url) -> Image.Image:
     Returns:
         Image of the avatar being bonked.
     """
-    bonk = Image.open("../img/bonk.png")
+    bonk = Image.open(config.img_path + "bonk.png")
 
     avatar = Image.open(
         requests.get(

@@ -8,6 +8,7 @@ import logging
 import util.embed
 import asyncio
 from random import shuffle
+from util.yt_download import parse_playlist, download
 
 queue = []
 is_playing = False
@@ -47,29 +48,31 @@ async def leave(ctx: commands.Context):
     logging.info(f"Bot disconnected from voice channel")
 
 
-async def play(ctx: commands.Context, audio):
+async def play(ctx: commands.Context, url):
     """Plays a file from the local filesystem.
 
     Args:
         ctx: Context of command invocation.
-        audio: The database entry of the video.
+        url: The Youtube url.
     """
-    for song in audio:
-        if song:
+    if "list" in url:
+        for song in parse_playlist(url):
             await queue_append(ctx, song)
+    else:
+        await queue_append(ctx, url)
 
     if not is_playing:
         await play_loop(ctx)
 
 
-async def queue_append(ctx: commands.Context, audio):
+async def queue_append(ctx: commands.Context, url):
     """Appends the given file to the queue.
 
     Args:
         ctx: Context of command invocation.
-        audio: The database entry of the video.
+        url: The Youtube url.
     """
-    queue.append(audio)
+    queue.append(url)
 
 
 async def play_loop(ctx: commands.Context):
@@ -81,9 +84,13 @@ async def play_loop(ctx: commands.Context):
     global is_playing
     if len(queue) > 0:
         is_playing = True
-        next_file = queue.pop(0)
+        next_file = download(queue.pop(0))
+        if next_file == None:
+            await play_loop(ctx)
+            return
+
         next_filepath = next_file.filepath + next_file.filename
-        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(next_filepath))
+        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source=next_filepath))
 
         await ctx.send(f"Now playing: {next_file.title}")
 
@@ -125,6 +132,7 @@ def get_queue() -> list:
         queue: Current song queue.
     """
     return queue
+
 
 def shuffle_queue():
     """Shuffles the song queue.

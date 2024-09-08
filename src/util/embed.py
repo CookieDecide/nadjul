@@ -6,6 +6,7 @@ Assures consistent look over different modules.
 
 import discord
 from discord.ext import commands
+from util.yt_download import get_title
 
 
 def create_embed_image(title, description, img_url, url) -> discord.Embed:
@@ -67,7 +68,7 @@ def create_embed_queue(queue) -> discord.Embed:
     description = ""
     i = 0
     for song in queue:
-        description += str(i) + ". " + song.title + "\n"
+        description += str(i) + ". " + get_title(song) + "\n"
         if i >= 9:
             break
         i += 1

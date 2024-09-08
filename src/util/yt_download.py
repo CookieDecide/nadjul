@@ -14,7 +14,7 @@ import os
 from model.db_audio import YOUTUBE_TABLE
 
 
-def __download_single(url):
+def download(url):
     """Downloads the audio of the given url. Should not be called from outside, use download() instead.
 
     Args:
@@ -59,46 +59,44 @@ def __download_single(url):
     return YOUTUBE_TABLE.get(YOUTUBE_TABLE.url == url)
 
 
-def __download_playlist(url):
-    """Downloads the audio of the given playlist url. Should not be called from outside, use download() instead.
+def get_title(url):
+    """Get the title of the video url.
 
     Args:
         url: Youtube url of the playlist.
 
     Returns:
-        A list of the database entrys of the videos.
+        Title of the video url.
     """
-    logging.info(f"Started download for playlist url {url}")
+    logging.info(f"Getting title of url {url}")
+
+    # First look in Database if already downloaded, else look with Youtube API for title
+    video = YOUTUBE_TABLE.get_or_none(YOUTUBE_TABLE.url == url)
+
+    if video is None:
+        video = YouTube(url, use_oauth=True, allow_oauth_cache=True)
+
+    logging.info(f"Finished getting title of url {url}")
+
+    return video.title
+
+
+def parse_playlist(url):
+    """Parses the given playlist url.
+
+    Args:
+        url: Youtube url of the playlist.
+
+    Returns:
+        A list of the video urls.
+    """
+    logging.info(f"Started parsing for playlist url {url}")
     playlist = Playlist(url)
     logging.info(f"Number of videos in playlist: {playlist.length}")
 
-    video_list = []
+    logging.info(f"Finished parsing for playlist url {url}")
 
-    index = 0
-    for video_url in playlist.video_urls:
-        index += 1
-        video = __download_single(video_url)
-        video_list.append(video)
-        logging.info(f"Finished download for video nr. {index}")
-
-    logging.info(f"Finished download for playlist url {url}")
-
-    return video_list
-
-
-def download(url):
-    """Downloads the audio of the given url.
-
-    Args:
-        url: Youtube url of the video.
-
-    Returns:
-        The database entry of the video.
-    """
-    if "list" in url:
-        return __download_playlist(url)
-    else:
-        return [__download_single(url)]
+    return playlist.video_urls
 
 
 def is_url_downloaded_single(url):

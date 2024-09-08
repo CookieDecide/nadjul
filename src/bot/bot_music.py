@@ -35,11 +35,9 @@ class BotMusic(commands.Cog):
         """
         logging.info(f"Received play request from user {ctx.author}")
 
-        audio = util.yt_download.download(url)
-
         await util.audio_player.join(ctx)
 
-        await util.audio_player.play(ctx, audio)
+        await util.audio_player.play(ctx, url)
 
         logging.info(f"Finished play request from user {ctx.author}")
 
@@ -54,7 +52,7 @@ class BotMusic(commands.Cog):
 
         util.audio_player.clear_queue()
         util.audio_player.skip(ctx)
-        await util.audio_player.leave(ctx)
+        # await util.audio_player.leave(ctx)
 
         logging.info(f"Finished stop request from user {ctx.author}")
 
@@ -85,3 +83,5 @@ class BotMusic(commands.Cog):
             ctx: Context of command invocation.
         """
         util.audio_player.shuffle_queue()
+        queue = util.audio_player.get_queue()
+        await ctx.send(embed=util.embed.create_embed_queue(queue))

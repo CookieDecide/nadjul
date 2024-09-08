@@ -7,6 +7,8 @@ from discord.ext import commands
 import logging
 import util.xkcd
 import util.embed
+import util.bonk
+from io import BytesIO
 
 
 class BotFun(commands.Cog):
@@ -59,3 +61,27 @@ class BotFun(commands.Cog):
                 )
             )
             logging.info(f"Finished xkcd request from user {ctx.author}")
+
+    @commands.command(name="bonk", help="Bonks the mentioned user.")
+    async def bonk(self, ctx: commands.Context, avamember: discord.Member = None):
+        """Sends an image of the tagged user being bonked.
+
+        Args:
+            ctx: Context of command invocation.
+            avamember: with '@' mentioned discord user.
+        """
+        logging.info(f"Received bonk request from user {ctx.author}")
+
+        bonk_img = util.bonk.create_bonk_img(avamember.display_avatar.url)
+
+        with BytesIO() as image_binary:
+            bonk_img.save(image_binary, "PNG")
+            image_binary.seek(0)
+            await ctx.send(
+                embed=util.embed.create_embed_image(
+                    "Bonk!", "", "attachment://bonk.png", ""
+                ),
+                file=discord.File(fp=image_binary, filename="bonk.png"),
+            )
+
+        logging.info(f"Finished bonk request from user {ctx.author}")

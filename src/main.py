@@ -12,6 +12,8 @@ import logging
 import time
 from bot.bot_fun import BotFun
 from bot.bot_music import BotMusic
+from bot.bot_message import BotMessage
+from bot.bot_nsfw import BotNSFW
 
 intents = discord.Intents.all()
 
@@ -41,16 +43,32 @@ def init_log():
     logging.basicConfig(filename=filename, format=format, level=level)
 
 
+@bot.event
+async def on_ready():
+    await bot.change_presence(
+        status=discord.Status.online, activity=discord.Game("Try >help")
+    )
+    logging.info(f"Logged in as {bot.user} ({bot.user.id})")
+    print("Logged in as {0} ({0.id})".format(bot.user))
+    print("------")
+
+
 async def main():
     async with bot:
         logging.info("Adding modules to bot")
         await bot.add_cog(BotFun(bot))
         await bot.add_cog(BotMusic(bot))
+        await bot.add_cog(BotMessage(bot))
+        await bot.add_cog(BotNSFW(bot))
         logging.info("Modules added")
 
         logging.info("Starting bot")
         await bot.start(__api_key__)
 
+
+abspath = os.path.abspath(__file__ + "/..")
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 init_log()
 asyncio.run(main())

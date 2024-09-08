@@ -11,6 +11,7 @@ import os
 import logging
 import time
 from bot.bot_fun import BotFun
+from bot.bot_music import BotMusic
 from bot.bot_message import BotMessage
 from bot.bot_nsfw import BotNSFW
 
@@ -56,6 +57,7 @@ async def main():
     async with bot:
         logging.info("Adding modules to bot")
         await bot.add_cog(BotFun(bot))
+        await bot.add_cog(BotMusic(bot))
         await bot.add_cog(BotMessage(bot))
         await bot.add_cog(BotNSFW(bot))
         logging.info("Modules added")

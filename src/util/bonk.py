@@ -22,7 +22,7 @@ def create_bonk_img(avatar_url) -> Image.Image:
 
     avatar = Image.open(
         requests.get(
-            "https://cdn.discordapp.com/avatars/132557567585943553/fd58edf119cf9127e5863728da356563.png?size=1024",
+            avatar_url,
             stream=True,
         ).raw
     )

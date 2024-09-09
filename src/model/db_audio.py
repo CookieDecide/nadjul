@@ -4,6 +4,7 @@ Licensed under MIT License
 
 import peewee as pw
 import os
+from playhouse.sqliteq import SqliteQueueDatabase
 
 DB_PATH = "../db/audio.db"
 
@@ -12,7 +13,7 @@ if not os.path.exists("../db"):
     os.mkdir("../db")
 
 # link the database file
-AUDIO_DB = pw.SqliteDatabase(DB_PATH, check_same_thread=False)
+AUDIO_DB = SqliteQueueDatabase(DB_PATH, autostart=False)
 
 
 class YOUTUBE_TABLE(pw.Model):
@@ -46,6 +47,6 @@ class YOUTUBE_TABLE(pw.Model):
         database = AUDIO_DB
         db_table = "audio"
 
-
+AUDIO_DB.start()
 AUDIO_DB.connect()
 AUDIO_DB.create_tables([YOUTUBE_TABLE])

@@ -14,6 +14,7 @@ from bot.bot_fun import BotFun
 from bot.bot_music import BotMusic
 from bot.bot_message import BotMessage
 from bot.bot_nsfw import BotNSFW
+from bot.bot_anime import BotAnime
 
 intents = discord.Intents.all()
 
@@ -60,6 +61,7 @@ async def main():
         await bot.add_cog(BotMusic(bot))
         await bot.add_cog(BotMessage(bot))
         await bot.add_cog(BotNSFW(bot))
+        await bot.add_cog(BotAnime(bot))
         logging.info("Modules added")
 
         logging.info("Starting bot")

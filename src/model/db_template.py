@@ -4,6 +4,7 @@ Licensed under MIT License
 
 import peewee as pw
 import os
+from playhouse.sqliteq import SqliteQueueDatabase
 
 DB_PATH = "../db/template.db"
 
@@ -12,7 +13,7 @@ if not os.path.exists("../db"):
     os.mkdir("../db")
 
 # link the database file
-TEMPLATE_DB = pw.SqliteDatabase(DB_PATH, check_same_thread=False)
+TEMPLATE_DB = SqliteQueueDatabase(DB_PATH, autostart=False)
 
 
 class TEMPLATE_TABLE(pw.Model):
@@ -45,6 +46,6 @@ class TEMPLATE_TABLE(pw.Model):
         database = TEMPLATE_DB
         db_table = "template"
 
-
+TEMPLATE_DB.start()
 TEMPLATE_DB.connect()
 TEMPLATE_DB.create_tables([TEMPLATE_TABLE])

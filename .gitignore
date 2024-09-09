@@ -127,6 +127,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+# Conda environment
+.conda/
 
 # Spyder project settings
 .spyderproject
@@ -178,3 +180,5 @@ src/api_key.py
 logs/
 db/
 YT/
+animethemes/
+requirements/

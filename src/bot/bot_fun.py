@@ -4,7 +4,7 @@ Licensed under MIT License
 
 import discord
 from discord.ext import commands
-import logging
+from config import logging
 import util.xkcd
 import util.embed
 import util.bonk

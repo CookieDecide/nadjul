@@ -6,7 +6,7 @@ Contains various helper functions and classes to receive content from xkcd.
 import urllib.request
 import json
 import random
-import logging
+from config import logging
 
 _url_comic_current = "https://xkcd.com/info.0.json"
 _url_comic_left = "https://xkcd.com/"

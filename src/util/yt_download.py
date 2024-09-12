@@ -5,7 +5,7 @@ Licensed under MIT License
 from pytube import YouTube
 from pytube import Playlist
 from pytube.exceptions import AgeRestrictedError
-import logging
+from config import logging
 import time
 import hashlib
 import config
@@ -15,7 +15,7 @@ from model.db_audio import YOUTUBE_TABLE
 
 
 def download(url):
-    """Downloads the audio of the given url. Should not be called from outside, use download() instead.
+    """Downloads the audio of the given url.
 
     Args:
         url: Youtube url of the video.
@@ -30,15 +30,18 @@ def download(url):
         logging.info(f"Url {url} is already downloaded")
     else:
         logging.info(f"Started download for url {url}")
-        video = YouTube(url, use_oauth=True, allow_oauth_cache=True)
-        filename = video.video_id + "." + config.youtube_file_extension
         try:
+            video = YouTube(url, use_oauth=True, allow_oauth_cache=True)
+            filename = video.video_id + "." + config.youtube_file_extension
             video.streams.filter(
                 file_extension=config.youtube_file_extension, only_audio=True
             ).first().download(
                 output_path=config.youtube_output_path, filename=filename
             )
         except AgeRestrictedError as err:
+            logging.error(f"Exception occured: {err}")
+            return
+        except Exception as err:
             logging.error(f"Exception occured: {err}")
             return
 
@@ -73,8 +76,12 @@ def get_title(url):
     # First look in Database if already downloaded, else look with Youtube API for title
     video = YOUTUBE_TABLE.get_or_none(YOUTUBE_TABLE.url == url)
 
-    if video is None:
-        video = YouTube(url, use_oauth=True, allow_oauth_cache=True)
+    try:
+        if video is None:
+            video = YouTube(url, use_oauth=True, allow_oauth_cache=True)
+    except Exception as err:
+            logging.error(f"Exception occured: {err}")
+            return "NOT FOUND"
 
     logging.info(f"Finished getting title of url {url}")
 

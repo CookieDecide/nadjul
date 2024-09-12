@@ -6,7 +6,7 @@ Contains functions to gather animethemes.
 import requests
 import urllib
 import config
-import logging
+from config import logging
 import os
 from pathlib import Path
 
@@ -28,7 +28,7 @@ def gather_years():
     logging.info(f"Inserting years into database.")
 
     for year in data:
-        logging.info(f"Inserting year {year}")
+        logging.debug(f"Inserting year {year}")
         ANIMEYEARS_TABLE.replace(
             year=year,
         ).execute()
@@ -55,7 +55,7 @@ def gather_animethemes(year: int):
         data = response.json()
         url = data["links"]["next"]
 
-        logging.info(f"Inserting animethemes for year {year}, page {pagenumber}.")
+        logging.debug(f"Inserting animethemes for year {year}, page {pagenumber}.")
 
         for anime in data["anime"]:
             if len(anime["series"]) > 0:
@@ -64,7 +64,7 @@ def gather_animethemes(year: int):
                     name=anime["series"][0]["name"],
                     slug=anime["series"][0]["slug"],
                 ).execute()
-                logging.info(f"Inserted series {anime['series'][0]['name']}")
+                logging.debug(f"Inserted series {anime['series'][0]['name']}")
 
             ANIME_TABLE.replace(
                 id=anime["id"],
@@ -78,7 +78,7 @@ def gather_animethemes(year: int):
                 studio=anime["studios"][0]["name"] if len(anime["studios"]) > 0 else None,
                 series=anime["series"][0]["id"] if len(anime["series"]) > 0 else None,
             ).execute()
-            logging.info(f"Inserted anime {anime['name']}")
+            logging.debug(f"Inserted anime {anime['name']}")
 
             for resource in anime["resources"]:
                 ANIMERESOURCES_TABLE.replace(
@@ -88,7 +88,7 @@ def gather_animethemes(year: int):
                     site=resource["site"],
                     anime=anime["id"],
                 ).execute()
-                logging.info(f"Inserted resource {resource['id']}")
+                logging.debug(f"Inserted resource {resource['id']}")
 
             for theme in anime["animethemes"]:
                 if len(theme["animethemeentries"]) > 0 and len(theme["animethemeentries"][0]["videos"]) > 0:
@@ -100,10 +100,10 @@ def gather_animethemes(year: int):
                         try:
                             urllib.request.urlretrieve(theme["animethemeentries"][0]["videos"][0]["audio"]["link"], filepath)
                         except Exception as e:
-                            logging.error(f"Failed to download {theme['animethemeentries'][0]['videos'][0]['audio']['link']} to {filepath}: {e}")
+                            logging.warning(f"Failed to download {theme['animethemeentries'][0]['videos'][0]['audio']['link']} to {filepath}: {e}")
                             continue
 
-                        logging.info(f"Downloaded {theme['animethemeentries'][0]['videos'][0]['audio']['link']} to {filepath}")
+                        logging.debug(f"Downloaded {theme['animethemeentries'][0]['videos'][0]['audio']['link']} to {filepath}")
 
                     ANIMETHEMES_TABLE.replace(
                         id=theme["id"],
@@ -120,6 +120,6 @@ def gather_animethemes(year: int):
                         anime=anime["id"],
                     ).execute()
 
-                    logging.info(f"Inserted animetheme {theme['id']}")
+                    logging.debug(f"Inserted animetheme {theme['id']}")
 
         pagenumber += 1

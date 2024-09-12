@@ -6,7 +6,7 @@ Contains helper functions to create bonk images.
 import requests
 from PIL import Image
 import config
-import logging
+from config import logging
 
 
 def create_bonk_img(avatar_url) -> Image.Image:

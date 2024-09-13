@@ -11,4 +11,5 @@ def is_dev(ctx):
     Returns:
         True if user is an admin, False otherwise.
     """
-    return ctx.author.id == 132557567585943553
+    devs = [132557567585943553, 132545399184424960]
+    return ctx.author.id in devs

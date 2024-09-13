@@ -36,7 +36,7 @@ class ANIMESERIES_TABLE(pw.Model):
     """
 
     def __str__(self):
-        return self.title
+        return self.slug
 
     class Meta:
         database = ANIME_DB
@@ -71,7 +71,7 @@ class ANIME_TABLE(pw.Model):
     """
 
     def __str__(self):
-        return self.title
+        return self.slug
 
     class Meta:
         database = ANIME_DB
@@ -101,7 +101,7 @@ class ANIMERESOURCES_TABLE(pw.Model):
     """
 
     def __str__(self):
-        return self.title
+        return self.link
 
     class Meta:
         database = ANIME_DB
@@ -138,7 +138,7 @@ class ANIMETHEMES_TABLE(pw.Model):
     """
 
     def __str__(self):
-        return self.title
+        return self.slug
 
     class Meta:
         database = ANIME_DB
@@ -164,7 +164,7 @@ class ANIMEYEARS_TABLE(pw.Model):
     """
 
     def __str__(self):
-        return self.title
+        return self.year
 
     class Meta:
         database = ANIME_DB

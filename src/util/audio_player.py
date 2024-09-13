@@ -87,7 +87,8 @@ class AudioPlayer:
         Args:
             ctx: Context of command invocation.
         """
-        await ctx.voice_client.disconnect()
+        if ctx.voice_client is not None:
+            await ctx.voice_client.disconnect()
         if self.__play_loop_task != None:
             self.__play_loop_task.cancel()
         logging.info(f"Bot disconnected from voice channel")
@@ -167,7 +168,7 @@ class AudioPlayer:
         
         source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source=path))
 
-        await ctx.send(f"Now playing: {path}")
+        # await ctx.send(f"Now playing: {path}")
         logging.info(f"Now playing: {path}")
 
         ctx.voice_client.play(source)

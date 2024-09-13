@@ -11,5 +11,8 @@ youtube_output_path = "YT/"
 youtube_file_extension = "mp4"
 img_path = "img/"
 
+lobby_max_players = 2
+aoq_embed_title = "Anime Opening Quiz"
+
 resource_manager = {}
 logging = getLogger("application")

@@ -3,12 +3,14 @@ Licensed under MIT License
 """
 from asyncio import Lock
 from util.audio_player import AudioPlayer
+from util.lobby import Lobby
 from enum import Enum
 from discord.ext.commands import Cog
 from config import logging
 
 class shared_resources(Enum):
     AUDIO_PLAYER = 0
+    LOBBY = 1
 
 class ResourceManager:
     __assigned_resources: dict
@@ -17,7 +19,8 @@ class ResourceManager:
 
     def __init__(self):
         self.__resources_dict = {shared_resources.AUDIO_PLAYER: AudioPlayer(Lock()),
-                            }
+                                 shared_resources.LOBBY: Lobby(Lock()),
+                                }
 
         self.__assigned_resources = {}
         for resource in shared_resources:

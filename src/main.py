@@ -1,13 +1,16 @@
 """Copyright by CookieDecide, Darkuuu
 Licensed under MIT License
 """
+import os
+abspath = os.path.abspath(__file__ + "/..")
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 import discord
 from discord.ext import commands
 from api_key import __api_key__
 import asyncio
 import config
-import os
 import logging
 import time
 from bot.bot_fun import BotFun
@@ -16,6 +19,7 @@ from bot.bot_message import BotMessage
 from bot.bot_nsfw import BotNSFW
 from bot.bot_anime import BotAnime
 from resource_manager import ResourceManager
+from util.checks import is_dev
 
 intents = discord.Intents.all()
 
@@ -88,6 +92,12 @@ async def on_guild_join(guild):
     print(f"Joined guild {guild.name} ({guild.id})")
     config.resource_manager[guild.id] = ResourceManager()
 
+@commands.command(name="sync", help="Syncs the slash commands with the server.", hidden=True)
+@commands.check(is_dev)
+async def sync_commands(ctx):
+    await bot.tree.sync()
+    await ctx.send("Synced commands with server.")
+
 
 async def main():
     async with bot:
@@ -97,15 +107,12 @@ async def main():
         await bot.add_cog(BotMessage(bot))
         await bot.add_cog(BotNSFW(bot))
         await bot.add_cog(BotAnime(bot))
+
+        bot.add_command(sync_commands)
         config.logging.info("Modules added")
 
         config.logging.info("Starting bot")
         await bot.start(__api_key__)
-
-
-abspath = os.path.abspath(__file__ + "/..")
-dname = os.path.dirname(abspath)
-os.chdir(dname)
 
 init_log()
 asyncio.run(main())

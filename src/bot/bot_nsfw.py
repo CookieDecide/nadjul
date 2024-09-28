@@ -25,7 +25,7 @@ class BotNSFW(commands.Cog):
         """
         self.bot = bot
 
-    @commands.command(name="cat", help="Shows a random cat.")
+    @commands.hybrid_command(name="cat", help="Shows a random cat.")
     async def cat(self, ctx: commands.Context):
         """Shows a random cat.
 

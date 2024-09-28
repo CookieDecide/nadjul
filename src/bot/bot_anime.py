@@ -13,7 +13,7 @@ import asyncio
 from resource_manager import shared_resources
 from util.checks import is_dev
 import util.quiz
-from model.db_anime import ANIME_TABLE, ANIMERESOURCES_TABLE, ANIMESERIES_TABLE, ANIMETHEMES_TABLE, ANIMEYEARS_TABLE
+from model.db_anime import ANIME_TABLE, ANIMERESOURCES_TABLE, ANIMESERIES_TABLE, ANIMETHEMES_TABLE, ANIMEYEARS_TABLE, MALRATING_TABLE
 from peewee import fn
 import random
 import time
@@ -60,8 +60,9 @@ class BotAnime(commands.Cog):
             "t": "OP",      # Type: OP, ED; list is possible, seperated by ","
             "r": 10,         # Runtime in seconds
             "s": "START",   # Section: START, RANDOM, END
-            "h": 0,         # Hints, degree of hints: 0, 1, 2, 3
+            "h": 0,         # Hints, degree of hints: 0, 1, 2, 3, 4
             "c": config.lobby_max_players,         # Players
+            "d": 0          # Difficulty: 0, 1 ,2 ,3
         }
 
         # Split by spaces to get each "keyword:value" pair
@@ -120,7 +121,7 @@ class BotAnime(commands.Cog):
         except ValueError:
             raise ValueError("Invalid hints.")
             
-        if parsed_args["h"] not in range(4):
+        if parsed_args["h"] not in range(5):
             raise ValueError("Invalid hints.")
             
         # Check if Players are valid
@@ -131,6 +132,15 @@ class BotAnime(commands.Cog):
             
         if parsed_args["c"] not in range(1, 11):
             raise ValueError("Invalid players.")
+        
+        # Check if Difficulty is valid
+        try:
+            parsed_args["d"] = int(parsed_args["d"])
+        except ValueError:
+            raise ValueError("Invalid difficulty.")
+        
+        if parsed_args["d"] not in range(4):
+            raise ValueError("Invalid difficulty.")
 
         return parsed_args
     
@@ -143,11 +153,31 @@ class BotAnime(commands.Cog):
         Returns:
             Tuple: Anime themes and solution index.
         """
+        # select count(*) from animethemes inner join anime on anime.id = animethemes.anime_id where animethemes.type = "OP" and anime.year >= 2018 and anime.year <= 2023;
+        anime_themes_count = ANIMETHEMES_TABLE.select() \
+                                              .join(ANIME_TABLE) \
+                                              .where((ANIMETHEMES_TABLE.type << parsed_args["t"]) 
+                                                     & (ANIME_TABLE.year >= parsed_args["y"][0]) 
+                                                     & (ANIME_TABLE.year <= parsed_args["y"][1])) \
+                                              .count()
+        
+        logging.info(f"Anime Themes Count: {anime_themes_count}")
+
+        # TODO: Check for duplicate animes
+
         # Select anime themes based on the parsed arguments
-        anime_themes = ANIMETHEMES_TABLE.select().join(ANIME_TABLE).where((ANIMETHEMES_TABLE.type << parsed_args["t"])
-                                                                            & (ANIME_TABLE.year >= parsed_args["y"][0])
-                                                                            & (ANIME_TABLE.year <= parsed_args["y"][1])
-                                                                        ).group_by(ANIMETHEMES_TABLE.path).order_by(fn.Random()).limit(4)
+        anime_themes = ANIMETHEMES_TABLE.select() \
+                                        .join(ANIME_TABLE) \
+                                        .join(MALRATING_TABLE) \
+                                        .where((ANIMETHEMES_TABLE.type << parsed_args["t"]) 
+                                               & (ANIME_TABLE.year >= parsed_args["y"][0]) 
+                                               & (ANIME_TABLE.year <= parsed_args["y"][1])) \
+                                        .group_by(ANIMETHEMES_TABLE.path) \
+                                        .order_by(MALRATING_TABLE.popularity.asc()) \
+                                        .limit(max(100 ,(int(anime_themes_count * config.aoq_sample_size[parsed_args["d"]]))))
+        
+        anime_themes = random.sample(list(anime_themes), 4)
+
         solution_index = random.randint(0, 3)
 
         self.print_anime_themes(anime_themes, solution_index)
@@ -169,8 +199,32 @@ class BotAnime(commands.Cog):
                 print(f"{i+1}: Wrong    - {anime_themes[i].anime.name}-{anime_themes[i].slug} - {anime_themes[i].song} - {anime_themes[i].artist} - {anime_themes[i].path}")
         print("")
 
+    def prepare_hint(self, anime_theme, hint_level):
+        """Prepares the hint for the anime themes.
+
+        Args:
+            anime_themes: List of anime themes.
+            solution_index: Index of the solution.
+            hint_level: Level of the hint.
+
+        Returns:
+            Tuple: Hint and solution index.
+        """
+        hint = ""
+        
+        if hint_level == 1:
+            hint = f"\nHint: {anime_theme.anime.year}"
+        elif hint_level == 2:
+            hint = f"\nHint: {anime_theme.anime.year}-{anime_theme.song}"
+        elif hint_level == 3:
+            hint = f"\nHint: {anime_theme.anime.year}-{anime_theme.song}-{anime_theme.artist}"
+        elif hint_level == 4:
+            hint = f"\nHint: {anime_theme.anime.year}-{anime_theme.song}-{anime_theme.artist}-{anime_theme.anime.studio}"
+        
+        return hint
+
     # -Parameter: jahre, punkte zum gewinnen, type(op/ed), Laufzeit der Sample, abschnitt der sample, hints, spielerzahl, (LOCK answers)
-    @commands.command(name="aoq", help=".")
+    @commands.hybrid_command(name="aoq", help=".")
     async def start_aoq(self, ctx: commands.Context, *, args: str = ""):
         """.
 
@@ -194,8 +248,14 @@ class BotAnime(commands.Cog):
         lobby.clear()
 
         # Parse the arguments
-        parsed_args = self.parse_aoq_args(args)
-        print(parsed_args)
+        try:
+            parsed_args = self.parse_aoq_args(args)
+            print(parsed_args)
+        except ValueError as e:
+            await ctx.send(embed=util.embed.create_embed_error(str(e)))
+            await config.resource_manager[ctx.guild.id].free(self, shared_resources.LOBBY)
+            await config.resource_manager[ctx.guild.id].free(self, shared_resources.AUDIO_PLAYER)
+            return
 
         lobby.set_max_players(parsed_args["c"])
 
@@ -233,11 +293,15 @@ class BotAnime(commands.Cog):
             # select * from animethemes inner join anime on animethemes.anime_id = anime.id where animethemes.type = "OP" group by animethemes.path order by RANDOM() limit 4;
             anime_themes, solution_index = self.select_anime_themes(parsed_args)
 
+            hint = self.prepare_hint(anime_themes[solution_index], parsed_args["h"])
+
             # Send the Question
-            await ctx.send(embed=util.embed.create_embed_aoq_quiz(config.aoq_embed_title, "Which Anime Opening is this?", anime_themes))
+            await ctx.send(embed=util.embed.create_embed_aoq_quiz(config.aoq_embed_title, "Which Anime Opening is this?", anime_themes, hint))
+
+            await asyncio.sleep(1)
 
             # Play the song
-            await audio_player.play_local(ctx, anime_themes[solution_index].path)
+            await audio_player.play_local(ctx, anime_themes[solution_index].path, parsed_args["r"], parsed_args["s"])
 
             # Check the given answers(each player can send numbers from 1 - 4 in the chat to give his answer, we are going to check the answer history of the lobby)
             player_answer_tasks = []
@@ -309,7 +373,7 @@ class BotAnime(commands.Cog):
         return msg
 
 
-    @commands.command(name="aoqstop", help=".")
+    @commands.hybrid_command(name="aoqstop", help=".")
     async def stop_aoq(self, ctx: commands.Context):
         """.
 

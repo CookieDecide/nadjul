@@ -10,9 +10,11 @@ animethemes_output_path = "animethemes/"  # Path to store anime themes
 youtube_output_path = "YT/"
 youtube_file_extension = "mp4"
 img_path = "img/"
+db_path = "db/"
 
 lobby_max_players = 2
 aoq_embed_title = "Anime Opening Quiz"
+aoq_sample_size = [0.1 ,0.2, 0.4, 1]
 
 resource_manager = {}
 logging = getLogger("application")

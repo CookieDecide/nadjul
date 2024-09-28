@@ -154,7 +154,7 @@ def create_embed_dict(title, description, items) -> discord.Embed:
 
     return embed
 
-def create_embed_aoq_quiz(title, description, items) -> discord.Embed:
+def create_embed_aoq_quiz(title, description, items, hint) -> discord.Embed:
     """Creates an embed showing a quiz.
 
     Args:
@@ -165,6 +165,8 @@ def create_embed_aoq_quiz(title, description, items) -> discord.Embed:
     Returns:
         An embed with blue color showing a quiz.
     """
+    if hint != "":
+        description += f"\n{hint}"
     color = 0x14D8FA  # blue
     embed = discord.Embed(
         title=title,

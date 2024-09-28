@@ -26,7 +26,7 @@ class BotFun(commands.Cog):
         """
         self.bot = bot
 
-    @commands.command(name="ping", help="Returns pong.")
+    @commands.hybrid_command(name="ping", help="Returns pong.")
     async def ping(self, ctx: commands.Context):
         """Sends a pong message.
 
@@ -37,7 +37,7 @@ class BotFun(commands.Cog):
         await ctx.send("Pong!")
         logging.info(f"Finished ping request from user {ctx.author}")
 
-    @commands.command(name="xkcd", help="Show a random comic from xkcd.com.")
+    @commands.hybrid_command(name="xkcd", help="Show a random comic from xkcd.com.")
     async def xkcd(self, ctx: commands.Context):
         """Shows a random xkcd comic. If not able to fetch one, shows an error message.
 
@@ -62,7 +62,7 @@ class BotFun(commands.Cog):
             )
             logging.info(f"Finished xkcd request from user {ctx.author}")
 
-    @commands.command(name="bonk", help="Bonks the mentioned user.")
+    @commands.hybrid_command(name="bonk", help="Bonks the mentioned user.")
     async def bonk(self, ctx: commands.Context, avamember: discord.Member = None):
         """Sends an image of the tagged user being bonked.
 

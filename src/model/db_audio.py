@@ -5,12 +5,13 @@ Licensed under MIT License
 import peewee as pw
 import os
 from playhouse.sqliteq import SqliteQueueDatabase
+import config
 
-DB_PATH = "../db/audio.db"
+DB_PATH = os.path.join(config.db_path, "audio.db")
 
 # check if db folder exists
-if not os.path.exists("../db"):
-    os.mkdir("../db")
+if not os.path.exists(config.db_path):
+    os.mkdir(config.db_path)
 
 # link the database file
 AUDIO_DB = SqliteQueueDatabase(DB_PATH, autostart=False)

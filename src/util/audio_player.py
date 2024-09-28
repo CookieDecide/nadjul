@@ -11,6 +11,9 @@ from random import shuffle
 from util.yt_download import parse_playlist, download
 import config
 import os
+import json
+import subprocess
+import random
 
 class TrackableQueue(asyncio.Queue):
     def __init__(self, *args, **kwargs):
@@ -56,6 +59,21 @@ class AudioPlayer:
         """Initializes the instance.
         """
         self.lock = lock
+
+    def get_audio_duration(self, file_path):
+    # Run ffprobe to get the duration in seconds
+        result = subprocess.run(
+            ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_entries", "format=duration", file_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        
+        # Parse the JSON output from ffprobe
+        data = json.loads(result.stdout)
+        if 'format' in data and 'duration' in data['format']:
+            return float(data['format']['duration'])
+        return None
 
     async def join(self, ctx: commands.Context):
         """Bot joins the voice channel of the author.
@@ -142,7 +160,9 @@ class AudioPlayer:
         try:
             song = download(url)
             next_filepath = song.filepath + song.filename
-            source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source=next_filepath))
+
+            options = "-af loudnorm=I=-16:TP=-1.5:LRA=11"   # Normalize audio
+            source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source=next_filepath, options=options))
 
             await ctx.send(f"Now playing: {song.title}")
             logging.info(f"Now playing: {song}")
@@ -154,7 +174,7 @@ class AudioPlayer:
             await ctx.send(embed=util.embed.create_embed_error(f"Error while playing song: {url}"))
             logging.error(f"Error while playing song: {e}")
 
-    async def play_local(self, ctx: commands.Context, path: str):
+    async def play_local(self, ctx: commands.Context, path: str, play_duration: int = None, segment: str = None):
         """Plays a file from the local filesystem.
 
         Args:
@@ -166,7 +186,21 @@ class AudioPlayer:
             logging.error(f"File {path} does not exist.")
             return
         
-        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source=path))
+        before_options = ""
+        if segment is not None and play_duration is not None:
+            duration = int(self.get_audio_duration(path))
+            logging.info(f"Duration: {duration}")
+            print(f"Duration: {duration}")
+
+            if segment == "START":
+                before_options = f"-ss 0"
+            elif segment == "RANDOM":
+                before_options = f"-ss {random.randint(0, duration - play_duration)}"
+            elif segment == "END":
+                before_options = f"-sseof {-play_duration}"
+
+        options = "-af loudnorm=I=-16:TP=-1.5:LRA=11"   # Normalize audio
+        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source=path, before_options=before_options, options=options))
 
         # await ctx.send(f"Now playing: {path}")
         logging.info(f"Now playing: {path}")

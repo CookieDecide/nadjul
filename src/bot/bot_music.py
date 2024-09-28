@@ -24,7 +24,7 @@ class BotMusic(commands.Cog):
         """
         self.bot = bot
         
-    @commands.command(name="play", help="Plays the provided YouTube url.")
+    @commands.hybrid_command(name="play", help="Plays the provided YouTube url.")
     async def play(self, ctx: commands.Context, url):
         """Plays the provided YouTube url.
 
@@ -43,7 +43,7 @@ class BotMusic(commands.Cog):
 
         logging.info(f"Finished play request from user {ctx.author}")
 
-    @commands.command(name="stop", help="Stops the current song.")
+    @commands.hybrid_command(name="stop", help="Stops the current song.")
     async def stop(self, ctx: commands.Context):
         """Stops the current song.
 
@@ -64,7 +64,7 @@ class BotMusic(commands.Cog):
 
         logging.info(f"Finished stop request from user {ctx.author}")
 
-    @commands.command(name="skip", help="Skips the current song.")
+    @commands.hybrid_command(name="skip", help="Skips the current song.")
     async def skip(self, ctx: commands.Context):
         """Skips the current song.
 
@@ -78,7 +78,7 @@ class BotMusic(commands.Cog):
         
         audio_player.skip(ctx)
 
-    @commands.command(name="queue", help="Sends the current song queue.")
+    @commands.hybrid_command(name="queue", help="Sends the current song queue.")
     async def print_queue(self, ctx: commands.Context):
         """Sends the current song queue.
 
@@ -93,7 +93,7 @@ class BotMusic(commands.Cog):
         queue = audio_player.get_queue()
         await ctx.send(embed=util.embed.create_embed_queue(queue))
 
-    @commands.command(name="shuffle", help="Shuffles the song queue.")
+    @commands.hybrid_command(name="shuffle", help="Shuffles the song queue.")
     async def shuffle_queue(self, ctx: commands.Context):
         """Shuffles the song queue.
 

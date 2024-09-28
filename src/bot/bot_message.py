@@ -23,7 +23,7 @@ class BotMessage(commands.Cog):
         """
         self.bot = bot
 
-    @commands.command(name="purge", help="Deletes the last x messages.")
+    @commands.hybrid_command(name="purge", help="Deletes the last x messages.")
     async def purge(self, ctx: commands.Context, count: int):
         """Deletes the last x messages.
 

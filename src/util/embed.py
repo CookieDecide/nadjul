@@ -228,3 +228,23 @@ def create_embed_aop_solution(title, description, solution) -> discord.Embed:
     embed.add_field(name=f"Solution:\t{solution.anime.name}-{solution.slug}", value=f"", inline=False)
 
     return embed
+
+def create_embed_aoq_fastest(title, description) -> discord.Embed:
+    """Creates an embed showing the fastest answer of a quiz.
+
+    Args:
+        title: Title of the embed.
+        description: Description/Message of embed.
+        items: Dictionary of items to show.
+
+    Returns:
+        An embed with blue color showing the fastest answer of a quiz.
+    """
+    color = 0x14D8FA  # blue
+    embed = discord.Embed(
+        title=title,
+        description=description,
+        color=color,
+    )
+
+    return embed

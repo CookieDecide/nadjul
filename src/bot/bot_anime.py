@@ -176,13 +176,54 @@ class BotAnime(commands.Cog):
                                         .order_by(MALRATING_TABLE.popularity.asc()) \
                                         .limit(max(100 ,(int(anime_themes_count * config.aoq_sample_size[parsed_args["d"]]))))
         
-        anime_themes = random.sample(list(anime_themes), 4)
+        anime_themes_selected = self.sample_anime_themes(anime_themes, 4)
 
         solution_index = random.randint(0, 3)
 
-        self.print_anime_themes(anime_themes, solution_index)
+        self.print_anime_themes(anime_themes_selected, solution_index)
 
-        return anime_themes, solution_index
+        return anime_themes_selected, solution_index
+    
+    def sample_anime_themes(self, anime_themes, sample_size):
+        """Samples anime themes from the list of anime themes.
+
+        Args:
+            anime_themes: List of anime themes.
+            sample_size: Size of the sample.
+
+        Returns:
+            List: Sample of anime themes.
+        """
+        anime_themes_selected = random.sample(list(anime_themes), 4)
+        tries = 0
+        
+        while not self.check_unique_anime(anime_themes_selected):
+            anime_themes_selected = random.sample(list(anime_themes), 4)
+            tries += 1
+
+        print(f"Tries: {tries}")
+        logging.info(f"Tries: {tries}")
+
+        return anime_themes_selected
+    
+    def check_unique_anime(self, anime_themes):
+        """Checks if the anime themes are unique.
+
+        Args:
+            anime_themes: List of anime themes.
+
+        Returns:
+            bool: True if the anime themes are unique, False otherwise.
+        """
+        for i in range(0, 3):
+            for j in range(i+1, 4):
+                if anime_themes[i].anime.id == anime_themes[j].anime.id:
+                    return False
+                if anime_themes[i].anime.series != None and anime_themes[j].anime.series != None:
+                    logging.debug(f"{anime_themes[i].anime.series} - {anime_themes[j].anime.series}")
+                    if anime_themes[i].anime.series == anime_themes[j].anime.series:
+                        return False
+        return True
     
     def print_anime_themes(self, anime_themes, solution_index):
         """Prints the anime themes.
@@ -245,6 +286,11 @@ class BotAnime(commands.Cog):
             await ctx.send(embed=util.embed.create_embed_error("Lobby is already in use."))
             return
         
+        if not (lobby.play_loop_task is None):
+            if (not lobby.play_loop_task.done()):
+                await ctx.send(embed=util.embed.create_embed_error("Quiz is already running."))
+                return
+        
         lobby.clear()
 
         # Parse the arguments
@@ -260,8 +306,7 @@ class BotAnime(commands.Cog):
         lobby.set_max_players(parsed_args["c"])
 
         # Start the quiz game
-        if lobby.play_loop_task is None or lobby.play_loop_task.done():
-            lobby.play_loop_task = asyncio.create_task(self.anime_opening_quiz(ctx, lobby, audio_player, parsed_args))
+        lobby.play_loop_task = asyncio.create_task(self.anime_opening_quiz(ctx, lobby, audio_player, parsed_args))
         
         logging.info(f"Finished start_aoq request from user {ctx.author}")
 
@@ -336,6 +381,7 @@ class BotAnime(commands.Cog):
             if fastest_player[0] is not None:
                 lobby.increment_score(fastest_player[0])
                 logging.info(f"{ctx.guild.get_member(fastest_player[0]).mention} was the fastest player!")
+                await ctx.send(embed=util.embed.create_embed_aoq_fastest(config.aoq_embed_title, f"{ctx.guild.get_member(fastest_player[0]).mention} was the fastest player!"))
 
             # Show the Solution
             await ctx.send(embed=util.embed.create_embed_aop_solution(config.aoq_embed_title, "", anime_themes[solution_index]))

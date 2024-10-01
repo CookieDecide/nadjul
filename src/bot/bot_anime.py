@@ -17,6 +17,7 @@ from model.db_anime import ANIME_TABLE, ANIMERESOURCES_TABLE, ANIMESERIES_TABLE,
 from peewee import fn
 import random
 import time
+import copy
 
 
 class BotAnime(commands.Cog):
@@ -373,6 +374,9 @@ class BotAnime(commands.Cog):
                 else:
                     await ctx.send(f"Timeout!")
 
+            # Calculate the scores
+            old_score = copy.deepcopy(lobby.get_all_scores())
+
             fastest_player = (None, None)
             for answer in correct_answers:
                 if fastest_player[1] is None or answer[1] < fastest_player[1]:
@@ -387,7 +391,7 @@ class BotAnime(commands.Cog):
             await ctx.send(embed=util.embed.create_embed_aop_solution(config.aoq_embed_title, "", anime_themes[solution_index]))
 
             # Show the scoreboard
-            await ctx.send(embed=util.embed.create_embed_scoreboard(ctx, config.aoq_embed_title, "", lobby.get_all_scores()))
+            await ctx.send(embed=util.embed.create_embed_scoreboard(ctx, config.aoq_embed_title, "", lobby.get_all_scores(), old_score))
 
             # Check if the game is over
             won = False

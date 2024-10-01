@@ -181,7 +181,7 @@ def create_embed_aoq_quiz(title, description, items, hint) -> discord.Embed:
 
     return embed
 
-def create_embed_scoreboard(ctx, title, description, items) -> discord.Embed:
+def create_embed_scoreboard(ctx, title, description, scores, old_scores) -> discord.Embed:
     """Creates an embed showing a scoreboard.
 
     Args:
@@ -192,7 +192,7 @@ def create_embed_scoreboard(ctx, title, description, items) -> discord.Embed:
     Returns:
         An embed with blue color showing a scoreboard.
     """
-    print(items)
+    print(scores)
     color = 0x14D8FA  # blue
     embed = discord.Embed(
         title=title,
@@ -201,8 +201,8 @@ def create_embed_scoreboard(ctx, title, description, items) -> discord.Embed:
     )
 
     i=0
-    for key, value in sorted(items.items(), key=lambda item: item[1], reverse=True):
-        embed.add_field(name=f"{i+1}:\t{ctx.guild.get_member(key)}\t{value}", value=f"", inline=False)
+    for key, value in sorted(scores.items(), key=lambda item: item[1], reverse=True):
+        embed.add_field(name=f"{i+1}:\t{ctx.guild.get_member(key)}\t{value}/+{int(value) - int(old_scores[key])}", value=f"", inline=False)
         i+=1
 
     return embed
